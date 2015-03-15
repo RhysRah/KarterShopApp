@@ -1,0 +1,18 @@
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\bin\Debug\KarterShopApplication.exe.config
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\bin\Debug\KarterShopApplication.exe
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\bin\Debug\KarterShopApplication.pdb
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\bin\Debug\KarterShopApplication.xml
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\obj\Debug\MainWindow.baml
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\obj\Debug\MainWindow.g.vb
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\obj\Debug\Application.g.vb
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\obj\Debug\KarterShopApplication_MarkupCompile.cache
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\obj\Debug\KarterShopApplication.g.resources
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\obj\Debug\KarterShopApplication.Resources.resources
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\obj\Debug\KarterShopApplication.vbproj.GenerateResource.Cache
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\obj\Debug\KarterShopApplication.exe
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\obj\Debug\KarterShopApplication.xml
+C:\Users\Rhys\documents\visual studio 2013\Projects\KarterShopApplication\KarterShopApplication\obj\Debug\KarterShopApplication.pdb
+C:\Users\Rhys\Documents\GitHub\KarterShopApp\KarterShopApplication\bin\Debug\KarterShopApplication.exe.config
+C:\Users\Rhys\Documents\GitHub\KarterShopApp\KarterShopApplication\obj\Debug\KarterShopApplication.exe
+C:\Users\Rhys\Documents\GitHub\KarterShopApp\KarterShopApplication\obj\Debug\KarterShopApplication.xml
+C:\Users\Rhys\Documents\GitHub\KarterShopApp\KarterShopApplication\obj\Debug\KarterShopApplication.pdb
