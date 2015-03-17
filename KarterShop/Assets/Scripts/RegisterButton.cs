@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using Newtonsoft.Json.Linq;
 
 public class RegisterButton : MonoBehaviour {
 
@@ -30,8 +31,16 @@ public class RegisterButton : MonoBehaviour {
 
 		while (!request.isDone)
 			;
-		Debug.Log (request.text);
 
+		try{
+			UserData.playInfo = new JObject(request.text);
+		}
+
+		catch{
+			Debug.LogError (request.text);
+		}
+
+		Application.LoadLevel (2);
 
 	}
 }
