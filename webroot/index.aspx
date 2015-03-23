@@ -1,3 +1,31 @@
+<%@Page Language="C#"%>
+
+<%@ Assembly Name="MySql.Data" %>
+<%@ Assembly Name="HtmlAgilityPack" %>
+<%@ Import namespace="MySql.Data.MySqlClient" %>
+<%@ Import namespace="System.Net" %>
+<%@ Import namespace="HtmlAgilityPack" %>
+
+
+<%
+
+
+    string vr = "";
+    string miiName = "";
+    string miiIcon = "";
+        
+    try
+    {
+        vr = Session["VR"].ToString();
+        miiName = Session["MiiName"].ToString();
+        miiIcon = Session["MiiIcon"].ToString();
+    }
+    catch
+    {
+        Response.Redirect("login.aspx");
+    }
+    
+     %>
 <html>
   <head>
       <title>KarterShop</title>
@@ -26,18 +54,17 @@
                     <tr>
                       <td style="text-align: center;" class="shadow-z-1">
                         <h2 style="height: 84px;"><img style="width: 65px; height: 61px; margin-top: -12px;"
-                            title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">[Mii
-                          name]</h2>
-                        <h2 style="height: 84px;">[VR] VR</h2>
+                            title="Mii Icon" alt="" src="<% Response.Write(miiIcon); %>"> <% Response.Write(miiName); %> </h2>
+                        <h2 style="height: 84px;"><% Response.Write(vr); %> VR</h2>
                         <h3><img style="width: 151px; height: 74px;" alt="" src="img/mktv.png">
                         </h3>
                         <h3>[Verified/Unverified]</h3>
                         <br>
                         <div><br>
                         </div>
-                        <div> <button class="btn btn-success" style="height: 100px; width:80%; font-weight: bold;">Shop</button></div>
-                        <div> <button class="btn btn-warning" style="width:40%;">Logout</button>
-                          <button class="btn btn-primary" style="width:40%;">Options</button></div>
+                        <div> <button class="btn btn-success" style="height: 100px; width:80%; font-weight: bold; left:0px;">Shop</button></div>
+                        <div> <button class="btn btn-warning" style="width:40%; left:0px;">Logout</button>
+                          <button class="btn btn-primary" style="width:40%; left:0px;">Options</button></div>
                       </td>
                       <td style="text-align: right" class="shadow-z-2"> <br>
                         <h3 style="text-align: center;">[coin icon] [coins]</h3>
@@ -252,7 +279,7 @@
                     <div style="text-align: center;" class="checkbox"> <label>
                         <input name="register" type="checkbox"> <span style="font-weight: bold;">I
                           am willing to host a room.</span> </label> </div>
-                    <button class="btn btn-primary" style="width:40%;">Update
+                    <button class="btn btn-primary" style="width:40%; left:0px;">Update
                       registration</button> <br>
                   </div>
                 </div>

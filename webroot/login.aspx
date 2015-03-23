@@ -9,7 +9,7 @@
 <script runat="server">
     protected void DoLogin(object sender, EventArgs e)
     {
-        string myConnectionString = "server=127.0.0.1;uid=kartershop;pwd=ShQP7U2TrEVLzUFA;database=kartershop;port=3306;";
+        string myConnectionString = "server=127.0.0.1;uid=kartershop;pwd=ShQP7U2TrEVLzUFA;database=kartershop;port=3306;Charset=utf8";
         MySqlConnection sql = new MySqlConnection(myConnectionString);
 
 	sql.Open();
@@ -17,18 +17,26 @@
         string username = nnid.Text;
         string password = pass.Text;
 
-        string query = "SELECT ID FROM  `Users` WHERE  `Password` =  '@Password' AND  `NNID` =  '@Nnid'";
+        nnid.Text = "";
 
-        MySqlCommand cmd = new MySqlCommand(query);
+        string query = "SELECT ID, MiiName, MiiIcon, VR FROM  `Users` WHERE  `Password` =  @Password AND  `NNID` =  @Nnid";
+
+        MySqlCommand cmd = new MySqlCommand(query, sql);
 
         cmd.Parameters.AddWithValue("Password", password);
         cmd.Parameters.AddWithValue("Nnid", username);
 
         MySqlDataReader reader = cmd.ExecuteReader();
 
+        reader.Read();
+
         if (reader.HasRows)
         {
+
             Session.Add("UserID", reader["ID"]);
+            Session.Add("MiiIcon", reader["MiiIcon"]);
+            Session.Add("VR", reader["VR"]);
+            Session.Add("MiiName", reader["MiiName"]);
             Session.Add("NNID", nnid);
 
             Response.Redirect("index.aspx");
@@ -39,6 +47,8 @@
         }
     }
 </script>
+
+<% Session.Clear(); %>
 
 <html>
   <head>
@@ -70,7 +80,7 @@
           <tr>
             <td> <asp:Textbox ID="pass" placeholder="KarterShop Password" class="form-control empty floating-label"
 
-                type="password" runat="server"></asp:Textbox> <br>
+                TextMode="password" runat="server"></asp:Textbox> <br>
             </td>
           </tr>
           <tr>
