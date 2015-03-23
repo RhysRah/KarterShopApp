@@ -19,7 +19,7 @@
 
         nnid.Text = "";
 
-        string query = "SELECT ID, MiiName, MiiIcon, VR FROM  `Users` WHERE  `Password` =  @Password AND  `NNID` =  @Nnid";
+        string query = "SELECT ID FROM  `Users` WHERE  `Password` =  @Password AND  `NNID` =  @Nnid";
 
         MySqlCommand cmd = new MySqlCommand(query, sql);
 
@@ -34,10 +34,9 @@
         {
 
             Session.Add("UserID", reader["ID"]);
-            Session.Add("MiiIcon", reader["MiiIcon"]);
-            Session.Add("VR", reader["VR"]);
-            Session.Add("MiiName", reader["MiiName"]);
-            Session.Add("NNID", nnid);
+            Session.Add("NNID", username);
+
+            UpdateUserInfo(reader["ID"], username, sql);
 
             Response.Redirect("index.aspx");
         }
@@ -45,6 +44,54 @@
         {
             loginButton.Text = "Wrong NNID or password";
         }
+    }
+
+    public void UpdateUserInfo(object id, string nnid, MySqlConnection conn)
+    {
+        WebClient client = new WebClient();
+        client.Encoding = Encoding.UTF8;
+
+        string html;
+
+        try
+        {
+            html = client.DownloadString("https://mariokart.tv/de/users/" + nnid);
+        }
+        catch (WebException error)
+        {
+
+            HttpWebResponse errorResponse = (HttpWebResponse)error.Response;
+
+            if (errorResponse.StatusCode == HttpStatusCode.NotFound)
+            {
+                return;
+            }
+            else
+            {
+                throw error;
+            }
+
+        }
+        
+        HtmlDocument userPage = new HtmlDocument();
+        userPage.LoadHtml(html);
+
+        string miiName = userPage.DocumentNode.SelectSingleNode("//*[@id=\"users\"]/div/div[2]/div[1]/div[2]/div/section/h2/span[2]").InnerHtml.Trim();
+        string miiIcon = userPage.DocumentNode.SelectSingleNode("//*[@id=\"users\"]/div/div[2]/div[1]/div[2]/div/section/h2/span[1]/img").Attributes["src"].Value;
+        int vr = int.Parse(userPage.DocumentNode.SelectSingleNode("//*[@id=\"users\"]/div/div[2]/div[1]/div[2]/div/div/section[1]/p").InnerHtml.Trim());
+
+        string query = "UPDATE `kartershop`.`Users` SET `MiiName` = @MiiName, `MiiIcon` = @MiiIcon, `VR` = @VR WHERE `Users`.`ID` = @ID;";
+
+        MySqlCommand cmd = new MySqlCommand(query, conn);
+
+        cmd.Parameters.AddWithValue("MiiName", miiName);
+        cmd.Parameters.AddWithValue("miiIcon", miiIcon);
+        cmd.Parameters.AddWithValue("VR", vr);
+
+        Session.Add("MiiName", miiName);
+        Session.Add("MiiIcon", miiIcon);
+        Session.Add("VR", vr);
+        
     }
 </script>
 
@@ -57,13 +104,14 @@
 
       rel="stylesheet">
           <title>KarterShop - Login</title>
-    <!-- Include roboto.css to use the Roboto web font, material.css to include the theme and ripples.css to style the ripple effect -->
     <link href="dist/css/roboto.min.css" rel="stylesheet">
     <link href="dist/css/material.min.css" rel="stylesheet">
     <link href="dist/css/ripples.min.css" rel="stylesheet">
   </head>
   <body>
-    <!-- Your site -->
+      <div style="top:0px; margin-left:auto; margin-right: auto;">
+          <img src="img/Banner.png" style="width:100%;" class="shadow-z-3"/>
+      </div>
     <div style="display: inline-block; position: fixed; top: 0px; bottom: 0px; left: 0px; right: 0px; width: 1000px; height: 282px; margin: auto;">
       <h1 style="text-align: center;">Welcome to the Mario Kart 8 KarterShop
         league.</h1>

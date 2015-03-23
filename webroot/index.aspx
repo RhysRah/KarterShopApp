@@ -63,7 +63,7 @@
                         <div><br>
                         </div>
                         <div> <button class="btn btn-success" style="height: 100px; width:80%; font-weight: bold; left:0px;">Shop</button></div>
-                        <div> <button class="btn btn-warning" style="width:40%; left:0px;">Logout</button>
+                        <div> <a href="login.aspx" class="btn btn-warning" style="width:40%; left:0px;">Logout</a>
                           <button class="btn btn-primary" style="width:40%; left:0px;">Options</button></div>
                       </td>
                       <td style="text-align: right" class="shadow-z-2"> <br>
@@ -272,16 +272,19 @@
                     round are <span style="font-weight: bold;">[Open/Closed]</span>
                     [for [timer]].<br>
                   </div>
-                  <div style="text-align: center;" class="checkbox"> <label> <input
-                        name="register" type="checkbox"> <span style="font-weight: bold;">I
+                    <br />
+                    <form runat="server">                  <div style="text-align: center;" class="togglebutton-material-green togglebutton"> <label> <asp:Checkbox
+                        ID="register" runat="server"></asp:Checkbox> <span style="font-weight: bold;">I
                         am participating in the next round.<br>
                       </span></label>
-                    <div style="text-align: center;" class="checkbox"> <label>
-                        <input name="register" type="checkbox"> <span style="font-weight: bold;">I
+                      <br />
+                    <div style="text-align: center;" class="togglebutton-material-deep-orange togglebutton"> <label>
+                        <asp:Checkbox ID="host" runat="server"></asp:Checkbox> <span style="font-weight: bold;">I
                           am willing to host a room.</span> </label> </div>
-                    <button class="btn btn-primary" style="width:40%; left:0px;">Update
-                      registration</button> <br>
+                      <br />
+                    <asp:Button ID="registerButton" class="btn btn-primary" Text="Update Registration" style="width:40%; left:0px;" runat="server"></asp:Button> <br>
                   </div>
+                        </form>
                 </div>
               </div>
             </div>

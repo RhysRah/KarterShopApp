@@ -106,13 +106,14 @@
     <meta content="text/html; charset=windows-1252" http-equiv="content-type">
     <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"
       rel="stylesheet">
-    <!-- Include roboto.css to use the Roboto web font, material.css to include the theme and ripples.css to style the ripple effect -->
     <link href="dist/css/roboto.min.css" rel="stylesheet">
     <link href="dist/css/material.min.css" rel="stylesheet">
     <link href="dist/css/ripples.min.css" rel="stylesheet">
   </head>
   <body>
-    <!-- Your site -->
+      <div style="top:0px; margin-left:auto; margin-right: auto;">
+          <img src="img/Banner.png" style="width:100%;" class="shadow-z-3"/>
+      </div>
     <div style="display: inline-block; position: fixed; top: 0px; bottom: 0px; left: 0px; right: 0px; width: 1000px; height: 282px; margin: auto;">
       <h1 style="text-align: center;">Register for the Mario Kart 8 KarterShop
         league:</h1>
