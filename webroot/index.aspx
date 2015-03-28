@@ -7,6 +7,62 @@
 <%@ Import namespace="HtmlAgilityPack" %>
 
 
+<script runat="server">
+
+    protected void registerButton_Click(object sender, EventArgs e)
+    {
+        string myConnectionString = "server=192.168.0.23;uid=kartershop;pwd=ShQP7U2TrEVLzUFA;database=kartershop;port=3306;Charset=utf8";
+        MySqlConnection sql = new MySqlConnection(myConnectionString);
+
+	    sql.Open();
+
+        bool canHost = host.Checked;
+        bool isParticipating = register.Checked;
+        
+
+        if (isParticipating)
+        {
+            string getRoomsQuery = "SELECT ID, ABS(" + Session["VR"].ToString() + " - AverageVR) AS Distance FROM Rooms WHERE (SELECT COUNT(*) FROM Users WHERE CurrentRoom = `Rooms`.ID) < 12 ORDER BY Distance LIMIT 1";
+
+            string updateRoomAverageVRQuery = "UPDATE `kartershop`.`Rooms` SET `AverageVR` = (SELECT AVG(VR) FROM Users Where CurrentRoom = @RoomID) WHERE `Rooms`.`ID` = @RoomID";
+
+            string addUserToRoomQuery = "UPDATE Users SET CurrentRoom = @Room WHERE ID = " + Session["UserID"].ToString();
+        }
+        else
+        {
+            string searchForHosts = "SELECT ID FROM Users WHERE CanHost = 1 AND IsHost = 0 AND CurrentRoom = (SELECT CurrentRoom FROM Users WHERE ID = " + Session["UserID"] + ")";
+            MySqlCommand searchCmd = new MySqlCommand(searchForHosts, sql);
+            
+            MySqlDataReader rdr = searchCmd.ExecuteReader();
+
+            if (rdr.HasRows)
+            {
+                string changeHost = "UPDATE Users SET IsHost = 1 WHERE CanHost = 1 AND IsHost = 0 AND CurrentRoom = (SELECT CurrentRoom FROM Users WHERE ID = " + Session["UserID"] + ") LIMIT 1";
+                searchCmd.CommandText = changeHost;
+                searchCmd.ExecuteNonQuery();
+            }
+            else
+            {
+                string moveHostToRoom = "UPDATE Users SET CurrentRoom = " + Session["CurrentRoom"] + " WHERE CanHost = 1 AND IsHost = 0 ORDER BY ABS( VR - "+ Session["VR"] + ") LIMIT 1";
+                searchCmd.CommandText = moveHostToRoom;
+                int rows = searchCmd.ExecuteNonQuery();
+
+                if (rows == 0)
+                {
+                    //move everyone to waitlist
+                }
+                
+            }
+            
+            string removeUser = "UPDATE Users SET CurrentRoom = 0 WHERE ID = " + Session["ID"].ToString();
+            MySqlCommand command = new MySqlCommand(removeUser, sql);
+            command.ExecuteNonQuery();
+        }
+    }
+</script>
+
+
+
 <%
 
 
@@ -25,20 +81,37 @@
         Response.Redirect("login.aspx");
     }
     
+    
+        string myConnectionString = "server=192.168.0.23;uid=kartershop;pwd=ShQP7U2TrEVLzUFA;database=kartershop;port=3306;Charset=utf8";
+        MySqlConnection sql = new MySqlConnection(myConnectionString);
+
+	    sql.Open();
+
+        string getUserRoom = "select AverageVR from Rooms where ID = ( select CurrentRoom from Users where ID = 54)";
+            MySqlCommand command = new MySqlCommand(getUserRoom, sql);
+            object roomAverageVR = command.ExecuteScalar();
+
+            bool isInRoom = false;
+
+            if (roomAverageVR != null)
+            {
+                isInRoom = true;
+            }
+    
      %>
+
 <html>
   <head>
       <title>KarterShop</title>
     <meta content="text/html; charset=windows-1252" http-equiv="content-type">
     <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"
       rel="stylesheet">
-    <!-- Include roboto.css to use the Roboto web font, material.css to include the theme and ripples.css to style the ripple effect -->
     <link href="dist/css/roboto.min.css" rel="stylesheet">
     <link href="dist/css/material.min.css" rel="stylesheet">
     <link href="dist/css/ripples.min.css" rel="stylesheet">
   </head>
   <body>
-    <div style="text-align: center;"><!-- Your site --></div>
+    <div style="text-align: center;"></div>
     <table style="width: 95%; height: 100%; text-align: left; margin-left: auto; margin-right: auto;"
       border="0">
       <tbody>
@@ -100,7 +173,16 @@
           <td style="padding:10px;">
             <div class="shadow-z-1" style="background-color:white;">
               <div style="padding: 20px;"><br>
-                <h1 style="text-align: center;">Your room for week [Week Number]</h1>
+                  <%
+                      string currentResponse;
+                      if(isInRoom){
+                      currentResponse = "<h1 style=\"text-align: center;\">Your room for round [Week Number]</h1><br /> <h3 style=\"text-align: center;\"> Average VR: " + roomAverageVR.ToString() + "</h3>"; 
+                  }
+                  else{
+                      currentResponse = "<h1 style=\"text-align: center;\">You are not registered for [Week Number]</h1><br />"; 
+                  }
+
+                      Response.Write(currentResponse); %>
                 <p><br>
                 </p>
                 <table style="width:100%;">
@@ -282,7 +364,7 @@
                         <asp:Checkbox ID="host" runat="server"></asp:Checkbox> <span style="font-weight: bold;">I
                           am willing to host a room.</span> </label> </div>
                       <br />
-                    <asp:Button ID="registerButton" class="btn btn-primary" Text="Update Registration" style="width:40%; left:0px;" runat="server"></asp:Button> <br>
+                    <asp:Button ID="registerButton" class="btn btn-primary" Text="Update Registration" style="width:40%; left:0px;" OnClick="registerButton_Click" runat="server"></asp:Button> <br>
                   </div>
                         </form>
                 </div>

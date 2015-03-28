@@ -1,4 +1,4 @@
-<%@Page Language="C#"%>
+<%@Page Language="C#" Debug="true"%>
 
 <%@ Assembly Name="MySql.Data" %>
 <%@ Assembly Name="HtmlAgilityPack" %>
@@ -7,9 +7,22 @@
 <%@ Import namespace="HtmlAgilityPack" %>
 
 <script runat="server">
+
+    public static bool Validator(object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain,
+                                      System.Net.Security.SslPolicyErrors sslPolicyErrors)
+    {
+        return true;
+    }
+
     protected void DoLogin(object sender, EventArgs e)
     {
-        string myConnectionString = "server=127.0.0.1;uid=kartershop;pwd=ShQP7U2TrEVLzUFA;database=kartershop;port=3306;Charset=utf8";
+
+        //Because mono is fucking stupid
+        ServicePointManager.ServerCertificateValidationCallback = Validator;
+
+        
+
+        string myConnectionString = "server=192.168.0.23;uid=kartershop;pwd=ShQP7U2TrEVLzUFA;database=kartershop;port=3306;Charset=utf8";
         MySqlConnection sql = new MySqlConnection(myConnectionString);
 
 	sql.Open();
@@ -19,7 +32,7 @@
 
         nnid.Text = "";
 
-        string query = "SELECT ID FROM  `Users` WHERE  `Password` =  @Password AND  `NNID` =  @Nnid";
+        string query = "SELECT ID, CurrentRoom FROM  `Users` WHERE  `Password` =  @Password AND  `NNID` =  @Nnid";
 
         MySqlCommand cmd = new MySqlCommand(query, sql);
 
@@ -34,6 +47,7 @@
         {
 
             Session.Add("UserID", reader["ID"]);
+            Session.Add("CurrentRoom", reader["CurrentRoom"]);
             Session.Add("NNID", username);
 
             UpdateUserInfo(reader["ID"], username, sql);

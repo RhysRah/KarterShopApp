@@ -63,7 +63,7 @@
         string miiIcon = userPage.DocumentNode.SelectSingleNode("//*[@id=\"users\"]/div/div[2]/div[1]/div[2]/div/section/h2/span[1]/img").Attributes["src"].Value;
         int vr = int.Parse(userPage.DocumentNode.SelectSingleNode("//*[@id=\"users\"]/div/div[2]/div[1]/div[2]/div/div/section[1]/p").InnerHtml.Trim());
         
-        string myConnectionString = "server=127.0.0.1;uid=kartershop;pwd=ShQP7U2TrEVLzUFA;database=kartershop;port=3306;Charset=utf8";
+        string myConnectionString = "server=192.168.0.23;uid=kartershop;pwd=ShQP7U2TrEVLzUFA;database=kartershop;port=3306;Charset=utf8";
         MySqlConnection sql = new MySqlConnection(myConnectionString);
 
 
