@@ -18,46 +18,24 @@
 
         bool canHost = host.Checked;
         bool isParticipating = register.Checked;
-        
+
+        string query;
 
         if (isParticipating)
         {
-            string getRoomsQuery = "SELECT ID, ABS(" + Session["VR"].ToString() + " - AverageVR) AS Distance FROM Rooms WHERE (SELECT COUNT(*) FROM Users WHERE CurrentRoom = `Rooms`.ID) < 12 ORDER BY Distance LIMIT 1";
-
-            string updateRoomAverageVRQuery = "UPDATE `kartershop`.`Rooms` SET `AverageVR` = (SELECT AVG(VR) FROM Users Where CurrentRoom = @RoomID) WHERE `Rooms`.`ID` = @RoomID";
-
-            string addUserToRoomQuery = "UPDATE Users SET CurrentRoom = @Room WHERE ID = " + Session["UserID"].ToString();
+             query = "UPDATE Users SET CurrentRoom = 1, CanHost = @Host WHERE ID = " + Session["UserID"].ToString();
+             Session["CurrentRoom"] = 1;
         }
         else
         {
-            string searchForHosts = "SELECT ID FROM Users WHERE CanHost = 1 AND IsHost = 0 AND CurrentRoom = (SELECT CurrentRoom FROM Users WHERE ID = " + Session["UserID"] + ")";
-            MySqlCommand searchCmd = new MySqlCommand(searchForHosts, sql);
-            
-            MySqlDataReader rdr = searchCmd.ExecuteReader();
-
-            if (rdr.HasRows)
-            {
-                string changeHost = "UPDATE Users SET IsHost = 1 WHERE CanHost = 1 AND IsHost = 0 AND CurrentRoom = (SELECT CurrentRoom FROM Users WHERE ID = " + Session["UserID"] + ") LIMIT 1";
-                searchCmd.CommandText = changeHost;
-                searchCmd.ExecuteNonQuery();
-            }
-            else
-            {
-                string moveHostToRoom = "UPDATE Users SET CurrentRoom = " + Session["CurrentRoom"] + " WHERE CanHost = 1 AND IsHost = 0 ORDER BY ABS( VR - "+ Session["VR"] + ") LIMIT 1";
-                searchCmd.CommandText = moveHostToRoom;
-                int rows = searchCmd.ExecuteNonQuery();
-
-                if (rows == 0)
-                {
-                    //move everyone to waitlist
-                }
-                
-            }
-            
-            string removeUser = "UPDATE Users SET CurrentRoom = 0 WHERE ID = " + Session["ID"].ToString();
-            MySqlCommand command = new MySqlCommand(removeUser, sql);
-            command.ExecuteNonQuery();
+             query = "UPDATE Users SET CurrentRoom = 0, CanHost = @Host WHERE ID = " + Session["UserID"].ToString();
+             Session["CurrentRoom"] = 0;
         }
+
+        MySqlCommand cmd = new MySqlCommand(query, sql);
+        cmd.Parameters.Add("Host", canHost);
+        
+        cmd.ExecuteNonQuery();
     }
 </script>
 
@@ -87,16 +65,14 @@
 
 	    sql.Open();
 
-        string getUserRoom = "select AverageVR from Rooms where ID = ( select CurrentRoom from Users where ID = 54)";
-            MySqlCommand command = new MySqlCommand(getUserRoom, sql);
-            object roomAverageVR = command.ExecuteScalar();
+        string getRegisteredUsers = "SELECT COUNT(*) FROM Users Where CurrentRoom = 1";
+        string getRegisteredHosts = "SELECT COUNT(*) FROM Users Where CurrentRoom = 1 AND CanHost = 1";
+            MySqlCommand command = new MySqlCommand(getRegisteredUsers, sql);
+            object users = command.ExecuteScalar();
+            command.CommandText = getRegisteredHosts;
+            object hosts = command.ExecuteScalar();
 
-            bool isInRoom = false;
-
-            if (roomAverageVR != null)
-            {
-                isInRoom = true;
-            }
+            bool isInRoom = (int)Session["CurrentRoom"] != 0;
     
      %>
 
@@ -171,184 +147,46 @@
             </div>
           </td>
           <td style="padding:10px;">
-            <div class="shadow-z-1" style="background-color:white;">
+            <div class="shadow-z-1" style="
+                background-color:
+                    <% if (isInRoom)
+                       {
+                           Response.Write("#cfffcf");
+                       }
+                       else
+                       {
+                           Response.Write("#ffcfcf");
+                       } %>
+                ;
+                ">
               <div style="padding: 20px;"><br>
                   <%
                       string currentResponse;
                       if(isInRoom){
-                      currentResponse = "<h1 style=\"text-align: center;\">Your room for round [Week Number]</h1><br /> <h3 style=\"text-align: center;\"> Average VR: " + roomAverageVR.ToString() + "</h3>"; 
+                      currentResponse = "<h1 style=\"text-align: center;\">You are registered for round [Week Number]</h1><br />"; 
                   }
                   else{
-                      currentResponse = "<h1 style=\"text-align: center;\">You are not registered for [Week Number]</h1><br />"; 
+                      currentResponse = "<h1 style=\"text-align: center;\">You are not registered for round [Week Number]</h1><br />"; 
                   }
 
                       Response.Write(currentResponse); %>
-                <p><br>
-                </p>
-                <table style="width:100%;">
-                  <tbody>
-                    <tr>
-                      <td>
-                        <table style="width: 100%; height: 200px; padding:10px"
-                          class="shadow-z-2" border="0">
-                          <tbody>
-                            <tr style="padding:10px; color:red;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
+
+                  <table class="shadow-z-1" style="width:100%; padding:20px; font-size: 16px;">
+                      <tbody>
+                          <tr>
+                              <td style="text-align:center; width:50%; padding: 10px; font-size: 22px;">
+                                  <strong>Players registered: <% Response.Write(users.ToString()); %></strong>
                               </td>
-                              <td style="text-align: center; width:10%; padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
+                              <td style="text-align:center; width:50%; padding: 10px; font-size: 22px;">
+                                  <strong>Hosts ready: <% Response.Write(hosts.ToString()); %></strong>
                               </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                            <tr style="padding:10px;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
-                              </td>
-                              <td style="text-align: center; width:10%; padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
-                              </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                            <tr style="padding:10px;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
-                              </td>
-                              <td style="text-align: center; width:10%; padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
-                              </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                            <tr style="padding:10px;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
-                              </td>
-                              <td style="text-align: center; width:10%; padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
-                              </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                            <tr style="padding:10px;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
-                              </td>
-                              <td style="text-align: center; width:10%; padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
-                              </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                            <tr style="padding:10px;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
-                              </td>
-                              <td style="text-align: center; width:10%; padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
-                              </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </td>
-                      <td>
-                        <table style="width: 100%; height: 200px; padding:10px"
-                          class="shadow-z-2" border="0">
-                          <tbody>
-                            <tr style="padding:10px;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
-                              </td>
-                              <td style="text-align: center; width:10%; padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
-                              </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                            <tr style="padding:10px;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
-                              </td>
-                              <td style="text-align: center; width:10%; padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
-                              </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                            <tr style="padding:10px;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
-                              </td>
-                              <td style="text-align: center; width:10% ;padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
-                              </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                            <tr style="padding:10px;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
-                              </td>
-                              <td style="text-align: center; width:10% ;padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
-                              </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                            <tr style="padding:10px;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
-                              </td>
-                              <td style="text-align: center; width:10%; padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
-                              </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                            <tr style="padding:10px;">
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: right"> [Mii Name] </h3>
-                              </td>
-                              <td style="text-align: center; width:10%; padding:10px;">
-                                <img style="width: 65px; height: 61px; margin-top: -12px;"
-                                  title="Mii Icon" alt="" src="https://mii-secure.cdn.nintendo.net/iq4ahh9fxt66_normal_face.png">
-                              </td>
-                              <td style="width:45%; padding:10px;">
-                                <h3 style="text-align: left; "> [NNID] </h3>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                          </tr>
+                      </tbody>
+                  </table>
+
+                  <br />
+
+
                 <div class="shadow-z-1" style="padding:15px"> <br>
                   <div style="text-align: center;">Registrations for the next
                     round are <span style="font-weight: bold;">[Open/Closed]</span>

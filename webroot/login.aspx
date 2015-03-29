@@ -6,6 +6,7 @@
 <%@ Import namespace="System.Net" %>
 <%@ Import namespace="HtmlAgilityPack" %>
 
+
 <script runat="server">
 
     public static bool Validator(object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain,
@@ -43,6 +44,7 @@
 
         reader.Read();
 
+
         if (reader.HasRows)
         {
 
@@ -56,7 +58,7 @@
         }
         else
         {
-            loginButton.Text = "Wrong NNID or password";
+            isLoginBad.Value = "yes";
         }
     }
 
@@ -132,7 +134,14 @@
       <br>
       <form runat="server" id="login">
       <table align="center" border="0" width="20%">
+          <%
+              if (isLoginBad.Value == "yes")
+              {
+                  Response.Write("<div class=\"alert alert-dismissable alert-danger\" style=\"text-align: center; width: 50%; margin-left:auto; margin-right:auto\"> <button type=\"button\" class=\"close\" data-dismiss=\"alert\">×</button> <strong>Could not log in</strong> <br/> You used a bad NNID or password. Please check the spelling or, if you don't have an account, <a href=\" register.aspx \" class=\"alert-link\">register</a> and try again. </div>");
+              }
+               %>
         <tbody>
+            <asp:HiddenField ID="isLoginBad" runat="server"/>
           <tr>
             <td> <asp:Textbox ID="nnid" placeholder="Nintendo Network ID" class="form-control empty floating-label"
 
