@@ -52,7 +52,11 @@
             Session.Add("CurrentRoom", reader["CurrentRoom"]);
             Session.Add("NNID", username);
 
-            UpdateUserInfo(reader["ID"], username, sql);
+            object id = reader["ID"];
+
+            reader.Close();
+
+            UpdateUserInfo(id, username);
 
             Response.Redirect("index.aspx");
         }
@@ -60,9 +64,11 @@
         {
             isLoginBad.Value = "yes";
         }
+
+        sql.Close();
     }
 
-    public void UpdateUserInfo(object id, string nnid, MySqlConnection conn)
+    public void UpdateUserInfo(object id, string nnid)
     {
         WebClient client = new WebClient();
         client.Encoding = Encoding.UTF8;
@@ -96,18 +102,9 @@
         string miiIcon = userPage.DocumentNode.SelectSingleNode("//*[@id=\"users\"]/div/div[2]/div[1]/div[2]/div/section/h2/span[1]/img").Attributes["src"].Value;
         int vr = int.Parse(userPage.DocumentNode.SelectSingleNode("//*[@id=\"users\"]/div/div[2]/div[1]/div[2]/div/div/section[1]/p").InnerHtml.Trim());
 
-        string query = "UPDATE `kartershop`.`Users` SET `MiiName` = @MiiName, `MiiIcon` = @MiiIcon, `VR` = @VR WHERE `Users`.`ID` = @ID;";
-
-        MySqlCommand cmd = new MySqlCommand(query, conn);
-
-        cmd.Parameters.AddWithValue("MiiName", miiName);
-        cmd.Parameters.AddWithValue("miiIcon", miiIcon);
-        cmd.Parameters.AddWithValue("VR", vr);
-
         Session.Add("MiiName", miiName);
         Session.Add("MiiIcon", miiIcon);
         Session.Add("VR", vr);
-        
     }
 </script>
 
@@ -179,6 +176,6 @@
             $.material.init();
         });
         </script>
-    
   </body>
+    
 </html>
